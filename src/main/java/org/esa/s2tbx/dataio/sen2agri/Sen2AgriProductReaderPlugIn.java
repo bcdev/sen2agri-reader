@@ -7,12 +7,23 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 public class Sen2AgriProductReaderPlugIn implements ProductReaderPlugIn {
 
-    @Override
+    private static final String HDR_FILE_EXTENSION = ".HDR";
+    // @todo 1 tb/tb check if this regular expression works also for the old files 2018-05-03
+    private static final Pattern pattern = Pattern.compile("S2([AB])_OPER_SSC_L2VALD_\\d{2}[A-Z]{3}____\\d{8}.(HDR|hdr)");
+
+     @Override
     public DecodeQualification getDecodeQualification(Object o) {
-        throw new RuntimeException("not implemented");
+        final File inputFile = getInputFile(o);
+
+        if (!isValidInputFile(inputFile)) {
+            return DecodeQualification.UNABLE;
+        }
+
+        return DecodeQualification.INTENDED;
     }
 
     /**
@@ -38,22 +49,79 @@ public class Sen2AgriProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
-        return new String[]{"S2_AGRI_SSC"};
+        return new String[]{"S2_AGRI_SSC_L2VALD"};
     }
 
+    /**
+     * Gets the default file extensions associated with each of the format names returned by the <code>{@link
+     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
+     * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
+     * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
+     *
+     * @return the default file extensions for this product I/O plug-in, never <code>null</code>
+     */
     @Override
     public String[] getDefaultFileExtensions() {
-        throw new RuntimeException("not implemented");
+        return new String[]{HDR_FILE_EXTENSION};
     }
 
+    /**
+     * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
+     * used.
+     * <p>
+     * <p> In a GUI, the description returned could be used as tool-tip text.
+     *
+     * @param locale the local for the given decription string, if <code>null</code> the default locale is used
+     * @return a textual description of this product reader/writer
+     */
     @Override
     public String getDescription(Locale locale) {
-        throw new RuntimeException("not implemented");
+        return "Sen2Agri SSC_L2VALD Level 2 Data Products";
     }
 
+    /**
+     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
+     *
+     * @return a new reader instance, never <code>null</code>
+     */
     @Override
     public SnapFileFilter getProductFileFilter() {
-        throw new RuntimeException("not implemented");
+        return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    }
+
+    // package access for testing purpose only tb 2018-05-03
+    static File getInputFile(Object input) {
+        if (input instanceof String) {
+            return new File((String) input);
+        } else if (input instanceof File) {
+            return (File) input;
+        }
+        return null;
+    }
+
+    // package access for testing purpose only tb 2018-05-03
+    @SuppressWarnings("SimplifiableIfStatement")
+    static boolean hasHDRExtension(File inputFile) {
+        if (inputFile == null) {
+            return false;
+        }
+
+        return inputFile.getPath().toUpperCase().endsWith(HDR_FILE_EXTENSION);
+    }
+
+    // package access for testing purpose only tb 2018-05-03
+    static boolean matchesRegEx(File inputFile) {
+        final String name = inputFile.getName();
+        return pattern.matcher(name).matches() ;
+    }
+
+    // @todo 3 tb/tb add tests 2018-05-03
+    private boolean isValidInputFile(File inputFile) {
+        return inputFile != null &&
+                inputFile.isFile() &&
+                hasHDRExtension(inputFile) &&
+                matchesRegEx(inputFile);
     }
 }

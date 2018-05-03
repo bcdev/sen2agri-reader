@@ -39,6 +39,11 @@
             <artifactId>snap-core</artifactId>
             <version>${snap.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-core</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
