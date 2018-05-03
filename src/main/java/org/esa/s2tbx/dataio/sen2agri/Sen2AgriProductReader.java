@@ -7,18 +7,27 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
-import java.io.IOException;
+import java.io.*;
 
 public class Sen2AgriProductReader extends AbstractProductReader {
 
-    protected Sen2AgriProductReader(ProductReaderPlugIn readerPlugIn) {
+    public Sen2AgriProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Object input = getInput();
+        final File inputFile = Sen2AgriProductReaderPlugIn.getInputFile(input);
+
+        final GlobalHeader globalHeader = readGlobalHeader(inputFile);
+
+        // @todo 1 parse scene raster width 2018-05-03
+        return new Product("bla", "blubb", 2, 2);
     }
 
     @Override
@@ -29,5 +38,16 @@ public class Sen2AgriProductReader extends AbstractProductReader {
     @Override
     public void readTiePointGridRasterData(TiePointGrid tpg, int destOffsetX, int destOffsetY, int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {
         throw new RuntimeException("not implemented");
+    }
+
+    private GlobalHeader readGlobalHeader(File inputFile) throws IOException {
+        final SAXBuilder saxBuilder = new SAXBuilder();
+
+        try (FileInputStream fileInputStream = new FileInputStream(inputFile)) {
+            final Document document = saxBuilder.build(fileInputStream);
+            return new GlobalHeader(document);
+        } catch (JDOMException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 }

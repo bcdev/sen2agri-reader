@@ -1,9 +1,12 @@
 package org.esa.s2tbx.dataio.sen2agri;
 
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.esa.snap.core.dataio.DecodeQualification.INTENDED;
 import static org.junit.Assert.assertEquals;
@@ -39,5 +42,20 @@ public class Sen2AgriProductReaderIOTest {
         final Sen2AgriProductReaderPlugIn plugIn = new Sen2AgriProductReaderPlugIn();
 
         assertEquals(INTENDED, plugIn.getDecodeQualification(l2_hdr_file));
+    }
+
+    @Test
+    public void testReadProductNodesImpl_S2A_MSIL2A_20171206T171701() throws IOException {
+        final File l2_hdr_file = new File(TEST_DATA_PATH + "S2A_MSIL2A_20171206T171701_N0206_R112_T14QKL_20171206T190908.SAFE/S2A_OPER_SSC_L2VALD_14QKL____20171206.HDR");
+
+        final Sen2AgriProductReaderPlugIn plugIn = new Sen2AgriProductReaderPlugIn();
+        final ProductReader reader = plugIn.createReaderInstance();
+
+        final Product product = reader.readProductNodes(l2_hdr_file, null);
+        try {
+
+        } finally {
+            product.dispose();
+        }
     }
 }
