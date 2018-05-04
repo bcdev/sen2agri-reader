@@ -51,7 +51,9 @@ public class Sen2AgriProductReaderIOTest {
 
         final Product product = reader.readProductNodes(l2_hdr_file, null);
         try {
-
+            assertEquals(10980, product.getSceneRasterWidth());
+            assertEquals(10980, product.getSceneRasterHeight());
+            assertEquals("S2_AGRI_SSC_L2VALD", product.getProductType());
         } finally {
             product.dispose();
         }

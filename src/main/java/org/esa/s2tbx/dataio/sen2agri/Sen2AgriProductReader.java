@@ -15,7 +15,7 @@ import java.io.*;
 
 public class Sen2AgriProductReader extends AbstractProductReader {
 
-    public Sen2AgriProductReader(ProductReaderPlugIn readerPlugIn) {
+    Sen2AgriProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
@@ -26,8 +26,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         final GlobalHeader globalHeader = readGlobalHeader(inputFile);
 
-        // @todo 1 parse scene raster width 2018-05-03
-        return new Product("bla", "blubb", 2, 2);
+        return new Product("bla", "S2_AGRI_SSC_L2VALD", globalHeader.getSceneRasterWidth(), globalHeader.getSceneRasterHeight());
     }
 
     @Override
