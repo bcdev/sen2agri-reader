@@ -21,6 +21,7 @@ public class GlobalHeaderTest {
         assertEquals(10980, globalHeader.getSceneRasterWidth());
         assertEquals("S2B_OPER_SSC_L2VALD_11RMP____20171112", globalHeader.getProductName());
         assertEquals("12-NOV-2017 18:29:37.000000", globalHeader.getSensingTime().toString());
+        assertEquals(0.0001, globalHeader.getReflectanceScaleFactor(), 1e-8);
     }
 
     private Document createDocument() throws JDOMException, IOException {
@@ -37,6 +38,7 @@ public class GlobalHeaderTest {
             "        <Specific_Product_Header>\n" +
             "            <Product_Information>\n" +
             "                <Acquisition_Date_Time>UTC=2017-11-12T18:29:37</Acquisition_Date_Time>\n" +
+            "                <Reflectance_Quantification_Value>0.0001</Reflectance_Quantification_Value>\n" +
             "            </Product_Information>\n" +
             "            <Image_Information>\n" +
             "                <List_of_Resolutions count=\"2\">\n" +

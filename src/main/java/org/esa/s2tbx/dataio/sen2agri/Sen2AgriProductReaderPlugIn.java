@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 public class Sen2AgriProductReaderPlugIn implements ProductReaderPlugIn {
 
     private static final String HDR_FILE_EXTENSION = ".HDR";
-    // @todo 1 tb/tb check if this regular expression works also for the old files 2018-05-03
     private static final Pattern pattern = Pattern.compile("S2([AB])_OPER_SSC_L2VALD_\\d{2}[A-Z]{3}____\\d{8}.(HDR|hdr)");
 
      @Override

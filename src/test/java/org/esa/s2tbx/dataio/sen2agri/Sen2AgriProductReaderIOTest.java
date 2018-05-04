@@ -37,6 +37,12 @@ public class Sen2AgriProductReaderIOTest {
 
             assertEquals("06-DEC-2017 17:17:04.000000", product.getStartTime().toString());
             assertEquals("06-DEC-2017 17:17:04.000000", product.getEndTime().toString());
+
+            final String[] bandNames = product.getBandNames();
+            assertEquals(34, bandNames.length);
+            assertEquals("ATB_R1_VAP", bandNames[0]);
+            assertEquals("QLT_R2_SAT", bandNames[11]);
+            assertEquals("FRE_R2_B11", bandNames[22]);
         } finally {
             product.dispose();
         }
@@ -58,6 +64,12 @@ public class Sen2AgriProductReaderIOTest {
 
             assertEquals("12-NOV-2017 18:29:37.000000", product.getStartTime().toString());
             assertEquals("12-NOV-2017 18:29:37.000000", product.getEndTime().toString());
+
+            final String[] bandNames = product.getBandNames();
+            assertEquals(34, bandNames.length);
+            assertEquals("ATB_R1_AOT", bandNames[1]);
+            assertEquals("QLT_R2_PIX", bandNames[12]);
+            assertEquals("FRE_R2_B12", bandNames[23]);
         } finally {
             product.dispose();
         }
@@ -79,6 +91,12 @@ public class Sen2AgriProductReaderIOTest {
 
             assertEquals("04-MAY-2016 17:50:36.000000", product.getStartTime().toString());
             assertEquals("04-MAY-2016 17:50:36.000000", product.getEndTime().toString());
+
+            final String[] bandNames = product.getBandNames();
+            assertEquals(34, bandNames.length);
+            assertEquals("ATB_R2_VAP", bandNames[2]);
+            assertEquals("QLT_R2_OTH", bandNames[13]);
+            assertEquals("SRE_R1_B2", bandNames[24]);
         } finally {
             product.dispose();
         }
@@ -100,6 +118,12 @@ public class Sen2AgriProductReaderIOTest {
 
             assertEquals("24-JUL-2016 17:26:01.000000", product.getStartTime().toString());
             assertEquals("24-JUL-2016 17:26:01.000000", product.getEndTime().toString());
+
+            final String[] bandNames = product.getBandNames();
+            assertEquals(34, bandNames.length);
+            assertEquals("ATB_R2_AOT", bandNames[3]);
+            assertEquals("FRE_R1_B2", bandNames[14]);
+            assertEquals("SRE_R1_B3", bandNames[25]);
         } finally {
             product.dispose();
         }

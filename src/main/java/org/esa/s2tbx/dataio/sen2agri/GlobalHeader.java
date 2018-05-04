@@ -19,6 +19,7 @@ class GlobalHeader {
     private static final String SPECIFIC_PRODUCT_HEADER = "Specific_Product_Header";
     private static final String PRODUCT_INFORMATION = "Product_Information";
     private static final String ACQUISITION_TIME = "Acquisition_Date_Time";
+    private static final String REFLECTANCE_SCALE_FACTOR = "Reflectance_Quantification_Value";
     private static final String IMAGE_INFORMATION = "Image_Information";
     private static final String LIST_OF_RESOLUTIONS = "List_of_Resolutions";
     private static final String SIZE = "Size";
@@ -27,12 +28,17 @@ class GlobalHeader {
     private int sceneRasterWidth;
     private String productName;
     private ProductData.UTC sensingTime;
+    private double reflectanceScaleFactor;
 
     GlobalHeader(Document document) throws IOException {
-        sceneRasterHeight = -1;
-        sceneRasterWidth = -1;
+        this();
 
         parse(document);
+    }
+
+    GlobalHeader() {
+        sceneRasterHeight = -1;
+        sceneRasterWidth = -1;
     }
 
     public int getSceneRasterHeight() {
@@ -47,8 +53,17 @@ class GlobalHeader {
         return productName;
     }
 
+    // only for tests tb 2018-05-04
+    void setProductName(String productName) {
+        this.productName = productName;
+    }
+
     public ProductData.UTC getSensingTime() {
         return sensingTime;
+    }
+
+    public double getReflectanceScaleFactor() {
+        return reflectanceScaleFactor;
     }
 
     private void parse(Document document) throws IOException {
@@ -60,18 +75,19 @@ class GlobalHeader {
         final Namespace namespace = Namespace.getNamespace("http://eop-cfi.esa.int/CFI");
 
         final Element fixedHeaderElement = rootElement.getChild(FIXED_HEADER, namespace);
-        parseProductname(namespace, fixedHeaderElement);
+        parseProductname(fixedHeaderElement, namespace);
 
         final Element variableHeaderElement = rootElement.getChild(VARIABLE_HEADER, namespace);
         final Element specificHeaderElement = variableHeaderElement.getChild(SPECIFIC_PRODUCT_HEADER, namespace);
         final Element productInformationElement = specificHeaderElement.getChild(PRODUCT_INFORMATION, namespace);
-        parseSensingTimes(namespace, productInformationElement);
+        parseSensingTimes(productInformationElement, namespace);
+        parseReflectanceScalingFactor(productInformationElement, namespace);
 
         final Element imageInformationElement = specificHeaderElement.getChild(IMAGE_INFORMATION, namespace);
         parseRasterSizes(imageInformationElement, namespace);
     }
 
-    private void parseSensingTimes(Namespace namespace, Element productInformationElement) throws IOException {
+    private void parseSensingTimes(Element productInformationElement, Namespace namespace) throws IOException {
         final Element acquisitionTimeElement = productInformationElement.getChild(ACQUISITION_TIME, namespace);
         final String acquisitionTime = acquisitionTimeElement.getValue();
         try {
@@ -81,7 +97,13 @@ class GlobalHeader {
         }
     }
 
-    private void parseProductname(Namespace namespace, Element fixedHeaderElement) {
+    private void parseReflectanceScalingFactor(Element productInformationElement, Namespace namespace) {
+        final Element scaleFactorElement = productInformationElement.getChild(REFLECTANCE_SCALE_FACTOR, namespace);
+        final String scalefactor = scaleFactorElement.getValue();
+        reflectanceScaleFactor = Double.parseDouble(scalefactor);
+    }
+
+    private void parseProductname(Element fixedHeaderElement, Namespace namespace) {
         final Element fileNameElement = fixedHeaderElement.getChild(FILE_NAME, namespace);
         productName = fileNameElement.getValue();
     }
@@ -106,4 +128,5 @@ class GlobalHeader {
             }
         }
     }
+
 }
