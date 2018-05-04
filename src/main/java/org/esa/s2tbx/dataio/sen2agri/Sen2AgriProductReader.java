@@ -11,7 +11,9 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class Sen2AgriProductReader extends AbstractProductReader {
 
@@ -26,7 +28,15 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         final GlobalHeader globalHeader = readGlobalHeader(inputFile);
 
-        return new Product("bla", "S2_AGRI_SSC_L2VALD", globalHeader.getSceneRasterWidth(), globalHeader.getSceneRasterHeight());
+        final Product product = new Product(globalHeader.getProductName(),
+                "S2_AGRI_SSC_L2VALD",
+                globalHeader.getSceneRasterWidth(),
+                globalHeader.getSceneRasterHeight());
+
+        product.setStartTime(globalHeader.getSensingTime());
+        product.setEndTime(globalHeader.getSensingTime());
+
+        return product;
     }
 
     @Override
