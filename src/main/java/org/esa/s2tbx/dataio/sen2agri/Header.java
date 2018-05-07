@@ -8,6 +8,7 @@ class Header {
     static final String EARTH_EXPLORER_HEADER = "Earth_Explorer_Header";
     static final String VARIABLE_HEADER = "Variable_Header";
     static final String SPECIFIC_PRODUCT_HEADER = "Specific_Product_Header";
+    static final String ANNEX_INFORMATION = "Annex_Information";
     static final String SIZE = "Size";
 
     final Namespace namespace;
@@ -17,15 +18,23 @@ class Header {
     }
 
     int parseLinesElement(Element element) {
-        final Element linesElement = element.getChild("Lines", namespace);
-        final String linesValue = linesElement.getValue();
-        return Integer.parseInt(linesValue);
+        return parseIntegerElement("Lines", element);
     }
 
     int parseColumnsElement(Element element) {
-        final Element columnsElement = element.getChild("Columns", namespace);
-        final String columnsValue = columnsElement.getValue();
-        return Integer.parseInt(columnsValue);
+        return parseIntegerElement("Columns", element);
+    }
+
+    int parseIntegerElement(String name, Element element) {
+        final Element elementChild = element.getChild(name, namespace);
+        final String integerValue = elementChild.getValue();
+        return Integer.parseInt(integerValue);
+    }
+
+    double parseDoubleElement(String name, Element element) {
+        final Element elementChild = element.getChild(name, namespace);
+        final String doubleValue = elementChild.getValue();
+        return Double.parseDouble(doubleValue);
     }
 
 

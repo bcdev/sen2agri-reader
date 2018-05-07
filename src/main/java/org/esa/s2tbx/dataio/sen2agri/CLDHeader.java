@@ -5,22 +5,14 @@ import org.jdom.Element;
 
 import java.io.IOException;
 
-class ATBHeader extends Header {
+class CLDHeader extends Header {
 
     private int rasterHeight;
     private int rasterWidth;
-    private byte vapNoDataValue;
-    private byte aotNoDataValue;
-    private double vapScaleFactor;
-    private double aotScaleFactor;
 
-    ATBHeader(Document document) throws IOException {
+    CLDHeader(Document document) throws IOException {
         rasterHeight = -1;
         rasterWidth = -1;
-        vapNoDataValue = 0;
-        aotNoDataValue = 0;
-        vapScaleFactor = Double.NaN;
-        aotScaleFactor = Double.NaN;
 
         parse(document);
     }
@@ -31,22 +23,6 @@ class ATBHeader extends Header {
 
     int getRasterWidth() {
         return rasterWidth;
-    }
-
-    byte getVapNoDataValue() {
-        return vapNoDataValue;
-    }
-
-    double getVapScaleFactor() {
-        return vapScaleFactor;
-    }
-
-    byte getAotNoDataValue() {
-        return aotNoDataValue;
-    }
-
-    double getAotScaleFactor() {
-        return aotScaleFactor;
     }
 
     private void parse(Document document) throws IOException {
@@ -61,10 +37,5 @@ class ATBHeader extends Header {
         final Element sizeElement = annexInformationElement.getChild(SIZE, namespace);
         rasterHeight = parseLinesElement(sizeElement);
         rasterWidth = parseColumnsElement(sizeElement);
-
-        vapNoDataValue = (byte) parseIntegerElement("VAP_Nodata_Value", annexInformationElement);
-        vapScaleFactor = parseDoubleElement("VAP_Quantification_Value", annexInformationElement);
-        aotNoDataValue = (byte) parseIntegerElement("AOT_Nodata_Value", annexInformationElement);
-        aotScaleFactor = parseDoubleElement("AOT_Quantification_Value", annexInformationElement);
     }
 }

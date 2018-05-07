@@ -137,6 +137,17 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         }
     }
 
+    private CLDHeader readCLDeader(File file) throws IOException {
+        final SAXBuilder saxBuilder = new SAXBuilder();
+
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            final Document document = saxBuilder.build(fileInputStream);
+            return new CLDHeader(document);
+        } catch (JDOMException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
     private void addBandsToProduct(Product product, GlobalHeader globalHeader) throws IOException {
         final String dataDirName = getDataDirName(globalHeader);
         final File dataDir = new File(inputFile.getParentFile(), dataDirName);
@@ -145,21 +156,10 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         }
 
         add_ATB_Bands(product, dataDir);
+        add_CLD_Bands(product, dataDir);
 
         ImageInputStream stream;
         TIFFImageReader tiffImageReader;
-
-        final File cld_r1_tif = getFile(".*CLD_R1.DBL.TIF", dataDir);
-        stream = registerInputStream(cld_r1_tif);
-        tiffImageReader = getTiffImageReader(stream);
-        addStreamContainer("CLD_R1", 0, tiffImageReader);
-        product.addBand("CLD_R1", ProductData.TYPE_UINT8);
-
-        final File cld_r2_tif = getFile(".*CLD_R2.DBL.TIF", dataDir);
-        stream = registerInputStream(cld_r2_tif);
-        tiffImageReader = getTiffImageReader(stream);
-        addStreamContainer("CLD_R2", 0, tiffImageReader);
-        product.addBand("CLD_R2", ProductData.TYPE_UINT8);
 
         final File msk_r1_tif = getFile(".*MSK_R1.DBL.TIF", dataDir);
         stream = registerInputStream(msk_r1_tif);
@@ -250,6 +250,27 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         product.addBand("SRE_R2_B12", ProductData.TYPE_INT16);
     }
 
+    private void add_CLD_Bands(Product product, File dataDir) throws IOException {
+        // @todo 1 tb/tb add flag coding 2018-05-07
+        final File cld_r1_tif = getFile(".*CLD_R1.DBL.TIF", dataDir);
+        CLDHeader cldHdr = readCLDeader(getFile(".*CLD_R1.HDR", dataDir));
+        ImageInputStream stream = registerInputStream(cld_r1_tif);
+        TIFFImageReader tiffImageReader = getTiffImageReader(stream);
+
+        addStreamContainer("CLD_R1", 0, tiffImageReader);
+        Band band = new Band("CLD_R1", ProductData.TYPE_UINT8, cldHdr.getRasterWidth(), cldHdr.getRasterHeight());
+        product.addBand(band);
+
+        final File cld_r2_tif = getFile(".*CLD_R2.DBL.TIF", dataDir);
+        cldHdr = readCLDeader(getFile(".*CLD_R1.HDR", dataDir));
+        stream = registerInputStream(cld_r2_tif);
+        tiffImageReader = getTiffImageReader(stream);
+
+        addStreamContainer("CLD_R2", 0, tiffImageReader);
+        band = new Band("CLD_R2", ProductData.TYPE_UINT8, cldHdr.getRasterWidth(), cldHdr.getRasterHeight());
+        product.addBand(band);
+    }
+
     private void add_ATB_Bands(Product product, File dataDir) throws IOException {
         final File atb_r1_tif = getFile(".*ATB_R1.DBL.TIF", dataDir);
         ATBHeader atbHdr = readATBHeader(getFile(".*ATB_R1.HDR", dataDir));
@@ -259,12 +280,14 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         addStreamContainer("ATB_R1_VAP", 0, tiffImageReader);
 
         Band band = new Band("ATB_R1_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
-        band.setScalingFactor(0.05);
+        band.setScalingFactor(atbHdr.getVapScaleFactor());
+        band.setNoDataValue(atbHdr.getVapNoDataValue());
         product.addBand(band);
 
         addStreamContainer("ATB_R1_AOT", 1, tiffImageReader);
         band = new Band("ATB_R1_AOT", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
-        band.setScalingFactor(0.005);
+        band.setScalingFactor(atbHdr.getAotScaleFactor());
+        band.setNoDataValue(atbHdr.getAotNoDataValue());
         product.addBand(band);
 
         final File atb_r2_tif = getFile(".*ATB_R2.DBL.TIF", dataDir);
@@ -274,12 +297,14 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("ATB_R2_VAP", 0, tiffImageReader);
         band = new Band("ATB_R2_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
-        band.setScalingFactor(0.05);
+        band.setScalingFactor(atbHdr.getVapScaleFactor());
+        band.setNoDataValue(atbHdr.getVapNoDataValue());
         product.addBand(band);
 
         addStreamContainer("ATB_R2_AOT", 1, tiffImageReader);
         band = new Band("ATB_R2_AOT", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
-        band.setScalingFactor(0.005);
+        band.setScalingFactor(atbHdr.getAotScaleFactor());
+        band.setNoDataValue(atbHdr.getAotNoDataValue());
         product.addBand(band);
     }
 
