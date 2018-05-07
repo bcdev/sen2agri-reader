@@ -17,7 +17,6 @@ class GlobalHeader extends Header {
     private static final String PRODUCT_INFORMATION = "Product_Information";
     private static final String ACQUISITION_TIME = "Acquisition_Date_Time";
     private static final String REFLECTANCE_SCALE_FACTOR = "Reflectance_Quantification_Value";
-    private static final String IMAGE_INFORMATION = "Image_Information";
     private static final String LIST_OF_RESOLUTIONS = "List_of_Resolutions";
 
     private int sceneRasterHeight;
