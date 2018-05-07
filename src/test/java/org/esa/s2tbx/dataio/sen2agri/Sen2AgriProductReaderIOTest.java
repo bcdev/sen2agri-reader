@@ -1,6 +1,7 @@
 package org.esa.s2tbx.dataio.sen2agri;
 
 import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,21 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals("ATB_R1_VAP", bandNames[0]);
             assertEquals("QLT_R2_SAT", bandNames[11]);
             assertEquals("FRE_R2_B11", bandNames[22]);
+
+            final float[] buffer = new float[16];
+            final Band atb_r1_vap = product.getBand("ATB_R1_VAP");
+            atb_r1_vap.readPixels(3000, 3000, 4, 4, buffer);
+            assertEquals(10.25, buffer[0], 1e-8);
+            assertEquals(10.300000190734863, buffer[1], 1e-8);
+            assertEquals(10.300000190734863, buffer[2], 1e-8);
+            assertEquals(10.300000190734863, buffer[3], 1e-8);
+
+            final Band atb_r1_aot = product.getBand("ATB_R1_AOT");
+            atb_r1_aot.readPixels(3010, 3010, 4, 4, buffer);
+            assertEquals(0.12999999523162842, buffer[0], 1e-8);
+            assertEquals(0.12999999523162842, buffer[1], 1e-8);
+            assertEquals(0.12999999523162842, buffer[2], 1e-8);
+            assertEquals(0.12999999523162842, buffer[3], 1e-8);
         } finally {
             product.dispose();
         }
@@ -70,6 +86,21 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals("ATB_R1_AOT", bandNames[1]);
             assertEquals("QLT_R2_PIX", bandNames[12]);
             assertEquals("FRE_R2_B12", bandNames[23]);
+
+            final float[] buffer = new float[16];
+            final Band atb_r2_vap = product.getBand("ATB_R2_VAP");
+            atb_r2_vap.readPixels(3020, 3020, 4, 4, buffer);
+            assertEquals(10.800000190734863, buffer[4], 1e-8);
+            assertEquals(10.800000190734863, buffer[5], 1e-8);
+            assertEquals(10.800000190734863, buffer[6], 1e-8);
+            assertEquals(10.800000190734863, buffer[7], 1e-8);
+
+            final Band atb_r2_aot = product.getBand("ATB_R2_AOT");
+            atb_r2_aot.readPixels(3030, 3030, 4, 4, buffer);
+            assertEquals(0.10000000149011612, buffer[8], 1e-8);
+            assertEquals(0.10000000149011612, buffer[9], 1e-8);
+            assertEquals(0.10000000149011612, buffer[10], 1e-8);
+            assertEquals(0.10000000149011612, buffer[11], 1e-8);
         } finally {
             product.dispose();
         }

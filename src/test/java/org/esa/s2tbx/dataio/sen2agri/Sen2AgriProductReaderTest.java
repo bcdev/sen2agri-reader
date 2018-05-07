@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class Sen2AgriReaderTest {
+public class Sen2AgriProductReaderTest {
 
     @Test
     public void testGetDataDirName() {

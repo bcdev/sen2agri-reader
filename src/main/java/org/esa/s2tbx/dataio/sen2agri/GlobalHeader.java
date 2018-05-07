@@ -10,19 +10,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
-class GlobalHeader {
+class GlobalHeader extends Header {
 
-    private static final String EARTH_EXPLORER_HEADER = "Earth_Explorer_Header";
     private static final String FIXED_HEADER = "Fixed_Header";
     private static final String FILE_NAME = "File_Name";
-    private static final String VARIABLE_HEADER = "Variable_Header";
-    private static final String SPECIFIC_PRODUCT_HEADER = "Specific_Product_Header";
     private static final String PRODUCT_INFORMATION = "Product_Information";
     private static final String ACQUISITION_TIME = "Acquisition_Date_Time";
     private static final String REFLECTANCE_SCALE_FACTOR = "Reflectance_Quantification_Value";
     private static final String IMAGE_INFORMATION = "Image_Information";
     private static final String LIST_OF_RESOLUTIONS = "List_of_Resolutions";
-    private static final String SIZE = "Size";
 
     private int sceneRasterHeight;
     private int sceneRasterWidth;
@@ -37,6 +33,7 @@ class GlobalHeader {
     }
 
     GlobalHeader() {
+        super();
         sceneRasterHeight = -1;
         sceneRasterWidth = -1;
     }
@@ -72,10 +69,8 @@ class GlobalHeader {
             throw new IOException("Invalid input file, not of type " + EARTH_EXPLORER_HEADER);
         }
 
-        final Namespace namespace = Namespace.getNamespace("http://eop-cfi.esa.int/CFI");
-
         final Element fixedHeaderElement = rootElement.getChild(FIXED_HEADER, namespace);
-        parseProductname(fixedHeaderElement, namespace);
+        parseProductName(fixedHeaderElement, namespace);
 
         final Element variableHeaderElement = rootElement.getChild(VARIABLE_HEADER, namespace);
         final Element specificHeaderElement = variableHeaderElement.getChild(SPECIFIC_PRODUCT_HEADER, namespace);
@@ -103,7 +98,7 @@ class GlobalHeader {
         reflectanceScaleFactor = Double.parseDouble(scalefactor);
     }
 
-    private void parseProductname(Element fixedHeaderElement, Namespace namespace) {
+    private void parseProductName(Element fixedHeaderElement, Namespace namespace) {
         final Element fileNameElement = fixedHeaderElement.getChild(FILE_NAME, namespace);
         productName = fileNameElement.getValue();
     }
@@ -116,14 +111,8 @@ class GlobalHeader {
             final Attribute r = resolutionElement.getAttribute("r");
             if ("10".equals(r.getValue())) {
                 final Element sizeElement = resolutionElement.getChild(SIZE, namespace);
-
-                final Element linesElement = sizeElement.getChild("Lines", namespace);
-                final String linesValue = linesElement.getValue();
-                sceneRasterHeight = Integer.parseInt(linesValue);
-
-                final Element columnsElement = sizeElement.getChild("Columns", namespace);
-                final String columnsValue = columnsElement.getValue();
-                sceneRasterWidth = Integer.parseInt(columnsValue);
+                sceneRasterHeight = parseLinesElement(sizeElement);
+                sceneRasterWidth = parseColumnsElement(sizeElement);
                 break;
             }
         }
