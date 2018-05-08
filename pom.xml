@@ -21,7 +21,7 @@
 
     <groupId>org.esa.s2tbx</groupId>
     <artifactId>sen2agri-reader</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <name>SNAP reader for uncompressed Sen2Agri data products</name>
     <packaging>nbm</packaging>

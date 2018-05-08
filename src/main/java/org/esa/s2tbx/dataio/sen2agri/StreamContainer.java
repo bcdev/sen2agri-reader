@@ -7,19 +7,11 @@ class StreamContainer {
     TIFFImageReader tiffImageReader;
     int imageIndex;
 
-    public TIFFImageReader getTiffImageReader() {
+    TIFFImageReader getTiffImageReader() {
         return tiffImageReader;
     }
 
-    public void setTiffImageReader(TIFFImageReader tiffImageReader) {
-        this.tiffImageReader = tiffImageReader;
-    }
-
-    public int getImageIndex() {
+    int getImageIndex() {
         return imageIndex;
-    }
-
-    public void setImageIndex(int imageIndex) {
-        this.imageIndex = imageIndex;
     }
 }

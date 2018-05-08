@@ -4,16 +4,14 @@ import com.bc.ceres.core.ProgressMonitor;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.geotools.referencing.CRS;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
@@ -37,6 +35,8 @@ public class Sen2AgriProductReader extends AbstractProductReader {
     private File inputFile;
     private final List<ImageInputStream> streamList;
     private final HashMap<String, StreamContainer> tiffReaderMap;
+    private CrsGeoCoding highResGeoCoding;
+    private CrsGeoCoding lowResGeoCoding;
 
     Sen2AgriProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -64,6 +64,8 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         constructGeoCodings(globalHeader);
 
         addBandsToProduct(product, globalHeader);
+
+        product.setSceneGeoCoding(highResGeoCoding);
 
         return product;
     }
@@ -144,9 +146,20 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
     private void constructGeoCodings(GlobalHeader globalHeader) throws IOException {
         final String epsgCode = globalHeader.getEpsgCode();
+
         try {
             final CoordinateReferenceSystem crs = CRS.decode(epsgCode);
-        } catch (FactoryException e) {
+
+            final CrsParameter highResParams = globalHeader.getHighResCrsParameter();
+            highResGeoCoding = new CrsGeoCoding(crs, highResParams.width, highResParams.height,
+                    highResParams.easting, highResParams.northing,
+                    highResParams.pixelSizeX, -highResParams.pixelSizeY);
+
+            final CrsParameter lowResParams = globalHeader.getLowResCrsParameter();
+            lowResGeoCoding = new CrsGeoCoding(crs, lowResParams.width, lowResParams.height,
+                    lowResParams.easting, lowResParams.northing,
+                    lowResParams.pixelSizeX, -lowResParams.pixelSizeY);
+        } catch (FactoryException | TransformException e) {
             throw new IOException(e.getMessage());
         }
     }
@@ -259,6 +272,11 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         Band band = new Band(name, ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setScalingFactor(scaleFactor);
         band.setNoDataValue(bandHeader.getNoDataValue());
+        if (name.contains("_R1_")) {
+            band.setGeoCoding(highResGeoCoding);
+        } else {
+            band.setGeoCoding(lowResGeoCoding);
+        }
         product.addBand(band);
     }
 
@@ -271,12 +289,15 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("QLT_R1_SAT", 0, tiffImageReader);
         Band band = new Band("QLT_R1_SAT", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
         addStreamContainer("QLT_R1_PIX", 1, tiffImageReader);
         band = new Band("QLT_R1_PIX", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
         addStreamContainer("QLT_R1_OTH", 2, tiffImageReader);
         band = new Band("QLT_R1_OTH", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
         final File qlt_r2_tif = getFile(".*QLT_R2.DBL.TIF", dataDir);
@@ -285,12 +306,15 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("QLT_R2_SAT", 0, tiffImageReader);
         band = new Band("QLT_R2_SAT", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
         addStreamContainer("QLT_R2_PIX", 1, tiffImageReader);
         band = new Band("QLT_R2_PIX", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
         addStreamContainer("QLT_R2_OTH", 2, tiffImageReader);
         band = new Band("QLT_R2_OTH", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
     }
 
@@ -303,6 +327,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("MSK_R1", 0, tiffImageReader);
         Band band = new Band("MSK_R1", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
         final File msk_r2_tif = getFile(".*MSK_R2.DBL.TIF", dataDir);
@@ -312,6 +337,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("MSK_R2", 0, tiffImageReader);
         band = new Band("MSK_R2", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
     }
 
@@ -324,6 +350,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("CLD_R1", 0, tiffImageReader);
         Band band = new Band("CLD_R1", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
         final File cld_r2_tif = getFile(".*CLD_R2.DBL.TIF", dataDir);
@@ -333,6 +360,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         addStreamContainer("CLD_R2", 0, tiffImageReader);
         band = new Band("CLD_R2", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
     }
 
@@ -347,12 +375,14 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         Band band = new Band("ATB_R1_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getVapScaleFactor());
         band.setNoDataValue(atbHdr.getVapNoDataValue());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
         addStreamContainer("ATB_R1_AOT", 1, tiffImageReader);
         band = new Band("ATB_R1_AOT", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getAotScaleFactor());
         band.setNoDataValue(atbHdr.getAotNoDataValue());
+        band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
         final File atb_r2_tif = getFile(".*ATB_R2.DBL.TIF", dataDir);
@@ -364,12 +394,14 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         band = new Band("ATB_R2_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getVapScaleFactor());
         band.setNoDataValue(atbHdr.getVapNoDataValue());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
 
         addStreamContainer("ATB_R2_AOT", 1, tiffImageReader);
         band = new Band("ATB_R2_AOT", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getAotScaleFactor());
         band.setNoDataValue(atbHdr.getAotNoDataValue());
+        band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
     }
 
