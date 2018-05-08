@@ -10,6 +10,7 @@ class Header {
     static final String SPECIFIC_PRODUCT_HEADER = "Specific_Product_Header";
     static final String ANNEX_INFORMATION = "Annex_Information";
     static final String IMAGE_INFORMATION = "Image_Information";
+
     static final String SIZE = "Size";
 
     final Namespace namespace;

@@ -8,9 +8,12 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.geotools.referencing.CRS;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
@@ -57,6 +60,8 @@ public class Sen2AgriProductReader extends AbstractProductReader {
 
         product.setStartTime(globalHeader.getSensingTime());
         product.setEndTime(globalHeader.getSensingTime());
+
+        constructGeoCodings(globalHeader);
 
         addBandsToProduct(product, globalHeader);
 
@@ -116,34 +121,32 @@ public class Sen2AgriProductReader extends AbstractProductReader {
     }
 
     private GlobalHeader readGlobalHeader() throws IOException {
-        final SAXBuilder saxBuilder = new SAXBuilder();
-
-        try (FileInputStream fileInputStream = new FileInputStream(inputFile)) {
-            final Document document = saxBuilder.build(fileInputStream);
-            return new GlobalHeader(document);
-        } catch (JDOMException e) {
-            throw new IOException(e.getMessage());
-        }
+        return new GlobalHeader(readXmlDocument(inputFile));
     }
 
     private ATBHeader readATBHeader(File file) throws IOException {
+        return new ATBHeader(readXmlDocument(file));
+    }
+
+    private BandHeader readBandHeader(File file) throws IOException {
+        return new BandHeader(readXmlDocument(file));
+    }
+
+    private Document readXmlDocument(File file) throws IOException {
         final SAXBuilder saxBuilder = new SAXBuilder();
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            final Document document = saxBuilder.build(fileInputStream);
-            return new ATBHeader(document);
+            return saxBuilder.build(fileInputStream);
         } catch (JDOMException e) {
             throw new IOException(e.getMessage());
         }
     }
 
-    private BandHeader readBandHeader(File file) throws IOException {
-        final SAXBuilder saxBuilder = new SAXBuilder();
-
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            final Document document = saxBuilder.build(fileInputStream);
-            return new BandHeader(document);
-        } catch (JDOMException e) {
+    private void constructGeoCodings(GlobalHeader globalHeader) throws IOException {
+        final String epsgCode = globalHeader.getEpsgCode();
+        try {
+            final CoordinateReferenceSystem crs = CRS.decode(epsgCode);
+        } catch (FactoryException e) {
             throw new IOException(e.getMessage());
         }
     }
@@ -172,25 +175,16 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         TIFFImageReader tiffImageReader = getTiffImageReader(stream);
 
         addStreamContainer("SRE_R1_B2", 0, tiffImageReader);
-        Band band = new Band("SRE_R1_B2", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R1_B2", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R1_B3", 1, tiffImageReader);
-        band = new Band("SRE_R1_B3", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R1_B3", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R1_B4", 2, tiffImageReader);
-        band = new Band("SRE_R1_B4", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R1_B4", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R1_B8", 3, tiffImageReader);
-        band = new Band("SRE_R1_B8", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R1_B8", scaleFactor, product, bandHeader);
 
         final File sre_r2_tif = getFile(".*SRE_R2.DBL.TIF", dataDir);
         bandHeader = readBandHeader(getFile(".*SRE_R2.HDR", dataDir));
@@ -198,35 +192,22 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         tiffImageReader = getTiffImageReader(stream);
 
         addStreamContainer("SRE_R2_B5", 0, tiffImageReader);
-        band = new Band("SRE_R2_B5", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R2_B5", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R2_B6", 1, tiffImageReader);
-        band = new Band("SRE_R2_B6", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R2_B6", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R2_B7", 2, tiffImageReader);
-        band = new Band("SRE_R2_B7", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R2_B7", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R2_B8A", 3, tiffImageReader);
-        band = new Band("SRE_R2_B8A", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R2_B8A", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R2_B11", 4, tiffImageReader);
-        band = new Band("SRE_R2_B11", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R2_B11", scaleFactor, product, bandHeader);
+
         addStreamContainer("SRE_R2_B12", 5, tiffImageReader);
-        band = new Band("SRE_R2_B12", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("SRE_R2_B12", scaleFactor, product, bandHeader);
     }
 
     private void add_FRE_Bands(Product product, File dataDir, GlobalHeader globalHeader) throws IOException {
@@ -239,57 +220,43 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         stream = registerInputStream(fre_r1_tif);
         tiffImageReader = getTiffImageReader(stream);
         addStreamContainer("FRE_R1_B2", 0, tiffImageReader);
-        Band band = new Band("FRE_R1_B2", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R1_B2", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R1_B3", 1, tiffImageReader);
-        band = new Band("FRE_R1_B3", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R1_B3", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R1_B4", 2, tiffImageReader);
-        band = new Band("FRE_R1_B4", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R1_B4", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R1_B8", 3, tiffImageReader);
-        band = new Band("FRE_R1_B8", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R1_B8", scaleFactor, product, bandHeader);
 
         final File fre_r2_tif = getFile(".*FRE_R2.DBL.TIF", dataDir);
         bandHeader = readBandHeader(getFile(".*FRE_R2.HDR", dataDir));
         stream = registerInputStream(fre_r2_tif);
         tiffImageReader = getTiffImageReader(stream);
+
         addStreamContainer("FRE_R2_B5", 0, tiffImageReader);
-        band = new Band("FRE_R2_B5", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R2_B5", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R2_B6", 1, tiffImageReader);
-        band = new Band("FRE_R2_B6", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R2_B6", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R2_B7", 2, tiffImageReader);
-        band = new Band("FRE_R2_B7", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R2_B7", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R2_B8A", 3, tiffImageReader);
-        band = new Band("FRE_R2_B8A", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R2_B8A", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R2_B11", 4, tiffImageReader);
-        band = new Band("FRE_R2_B11", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
-        band.setScalingFactor(scaleFactor);
-        band.setNoDataValue(bandHeader.getNoDataValue());
-        product.addBand(band);
+        addScaledBand("FRE_R2_B11", scaleFactor, product, bandHeader);
+
         addStreamContainer("FRE_R2_B12", 5, tiffImageReader);
-        band = new Band("FRE_R2_B12", ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
+        addScaledBand("FRE_R2_B12", scaleFactor, product, bandHeader);
+    }
+
+    private void addScaledBand(String name, double scaleFactor, Product product, BandHeader bandHeader) {
+        Band band = new Band(name, ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setScalingFactor(scaleFactor);
         band.setNoDataValue(bandHeader.getNoDataValue());
         product.addBand(band);

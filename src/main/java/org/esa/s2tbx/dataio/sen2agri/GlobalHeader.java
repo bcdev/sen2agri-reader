@@ -18,12 +18,25 @@ class GlobalHeader extends Header {
     private static final String ACQUISITION_TIME = "Acquisition_Date_Time";
     private static final String REFLECTANCE_SCALE_FACTOR = "Reflectance_Quantification_Value";
     private static final String LIST_OF_RESOLUTIONS = "List_of_Resolutions";
+    private static final String GEO_REF_INFORMATION = "Geo_Referencing_Information";
+    private static final String PRODUCT_COVERAGE = "Product_Coverage";
+    private static final String GEOGRAPHIC = "Geographic";
+    private static final String CRS = "Coordinate_Reference_System";
+    private static final String CODE = "Code";
+    private static final String GEO_POSITION = "Geoposition";
+    private static final String ULX = "ULX";
+    private static final String ULY = "ULY";
+    private static final String XDIM = "XDIM";
+    private static final String YDIM = "YDIM";
 
     private int sceneRasterHeight;
     private int sceneRasterWidth;
     private String productName;
     private ProductData.UTC sensingTime;
     private double reflectanceScaleFactor;
+    private String epsgCode;
+    private CrsParameter highResCrsparameter;
+    private CrsParameter lowResCrsparameter;
 
     GlobalHeader(Document document) throws IOException {
         this();
@@ -37,15 +50,15 @@ class GlobalHeader extends Header {
         sceneRasterWidth = -1;
     }
 
-    public int getSceneRasterHeight() {
+    int getSceneRasterHeight() {
         return sceneRasterHeight;
     }
 
-    public int getSceneRasterWidth() {
+    int getSceneRasterWidth() {
         return sceneRasterWidth;
     }
 
-    public String getProductName() {
+    String getProductName() {
         return productName;
     }
 
@@ -54,12 +67,24 @@ class GlobalHeader extends Header {
         this.productName = productName;
     }
 
-    public ProductData.UTC getSensingTime() {
+    ProductData.UTC getSensingTime() {
         return sensingTime;
     }
 
-    public double getReflectanceScaleFactor() {
+    double getReflectanceScaleFactor() {
         return reflectanceScaleFactor;
+    }
+
+    String getEpsgCode() {
+        return epsgCode;
+    }
+
+    CrsParameter getHighResCrsParameter() {
+        return highResCrsparameter;
+    }
+
+    CrsParameter getLowResCrsParameter() {
+        return lowResCrsparameter;
     }
 
     private void parse(Document document) throws IOException {
@@ -79,6 +104,14 @@ class GlobalHeader extends Header {
 
         final Element imageInformationElement = specificHeaderElement.getChild(IMAGE_INFORMATION, namespace);
         parseRasterSizes(imageInformationElement, namespace);
+
+        final Element geoInformationElement = specificHeaderElement.getChild(GEO_REF_INFORMATION, namespace);
+        final Element productCoverageElement = geoInformationElement.getChild(PRODUCT_COVERAGE, namespace);
+        final Element geographicElement = productCoverageElement.getChild(GEOGRAPHIC, namespace);
+        final Element crsElement = geographicElement.getChild(CRS, namespace);
+        final Element codeElement = crsElement.getChild(CODE, namespace);
+        epsgCode = codeElement.getValue();
+
     }
 
     private void parseSensingTimes(Element productInformationElement, Namespace namespace) throws IOException {
@@ -109,12 +142,32 @@ class GlobalHeader extends Header {
         for (final Element resolutionElement : children) {
             final Attribute r = resolutionElement.getAttribute("r");
             if ("10".equals(r.getValue())) {
+                highResCrsparameter = new CrsParameter();
                 final Element sizeElement = resolutionElement.getChild(SIZE, namespace);
                 sceneRasterHeight = parseLinesElement(sizeElement);
                 sceneRasterWidth = parseColumnsElement(sizeElement);
-                break;
+
+                highResCrsparameter.width = sceneRasterWidth;
+                highResCrsparameter.height = sceneRasterHeight;
+
+                final Element geoPositionElement = resolutionElement.getChild(GEO_POSITION, namespace);
+                highResCrsparameter.easting = parseIntegerElement(ULX, geoPositionElement);
+                highResCrsparameter.northing = parseIntegerElement(ULY, geoPositionElement);
+                highResCrsparameter.pixelSizeX = parseIntegerElement(XDIM, geoPositionElement);
+                highResCrsparameter.pixelSizeY = parseIntegerElement(YDIM, geoPositionElement);
+            }
+            if ("20".equals(r.getValue())) {
+                lowResCrsparameter = new CrsParameter();
+                final Element sizeElement = resolutionElement.getChild(SIZE, namespace);
+                lowResCrsparameter.height = parseLinesElement(sizeElement);
+                lowResCrsparameter.width = parseColumnsElement(sizeElement);
+
+                final Element geoPositionElement = resolutionElement.getChild(GEO_POSITION, namespace);
+                lowResCrsparameter.easting = parseIntegerElement(ULX, geoPositionElement);
+                lowResCrsparameter.northing = parseIntegerElement(ULY, geoPositionElement);
+                lowResCrsparameter.pixelSizeX = parseIntegerElement(XDIM, geoPositionElement);
+                lowResCrsparameter.pixelSizeY = parseIntegerElement(YDIM, geoPositionElement);
             }
         }
     }
-
 }
