@@ -2,6 +2,7 @@ package org.esa.s2tbx.dataio.sen2agri;
 
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
@@ -197,6 +198,8 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band cld_r1 = product.getBand("CLD_R1");
+            final FlagCoding flagCoding = cld_r1.getFlagCoding();
+            assertEquals("CLD", flagCoding.getName());
             cld_r1.readPixels(3040, 3040, 4, 4, intBuffer);
             assertEquals(0, intBuffer[8]);
             assertEquals(0, intBuffer[9]);
@@ -263,6 +266,8 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band cld_r1 = product.getBand("CLD_R2");
+            final FlagCoding flagCoding = cld_r1.getFlagCoding();
+            assertEquals("CLD", flagCoding.getName());
             cld_r1.readPixels(3050, 3050, 4, 4, intBuffer);
             assertEquals(19, intBuffer[12]);
             assertEquals(19, intBuffer[13]);

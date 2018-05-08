@@ -342,7 +342,6 @@ public class Sen2AgriProductReader extends AbstractProductReader {
     }
 
     private void add_CLD_Bands(Product product, File dataDir) throws IOException {
-        // @todo 1 tb/tb add flag coding 2018-05-07
         final File cld_r1_tif = getFile(".*CLD_R1.DBL.TIF", dataDir);
         BandHeader bandHeader = readBandHeader(getFile(".*CLD_R1.HDR", dataDir));
         ImageInputStream stream = registerInputStream(cld_r1_tif);
@@ -351,6 +350,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         addStreamContainer("CLD_R1", 0, tiffImageReader);
         Band band = new Band("CLD_R1", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(highResGeoCoding);
+        band.setSampleCoding(createCloudFlagCoding());
         product.addBand(band);
 
         final File cld_r2_tif = getFile(".*CLD_R2.DBL.TIF", dataDir);
@@ -361,6 +361,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         addStreamContainer("CLD_R2", 0, tiffImageReader);
         band = new Band("CLD_R2", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(lowResGeoCoding);
+        band.setSampleCoding(createCloudFlagCoding());
         product.addBand(band);
     }
 
@@ -375,6 +376,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         Band band = new Band("ATB_R1_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getVapScaleFactor());
         band.setNoDataValue(atbHdr.getVapNoDataValue());
+        band.setUnit("g/cm2");
         band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
@@ -394,6 +396,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         band = new Band("ATB_R2_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getVapScaleFactor());
         band.setNoDataValue(atbHdr.getVapNoDataValue());
+        band.setUnit("g/cm2");
         band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
 
@@ -422,6 +425,20 @@ public class Sen2AgriProductReader extends AbstractProductReader {
     static String getDataDirName(GlobalHeader globalHeader) {
         final String productName = globalHeader.getProductName();
         return productName + ".DBL.DIR";
+    }
+
+    // package access for testing only tb 2018-05-08
+    static FlagCoding createCloudFlagCoding() {
+        final FlagCoding flagCoding = new FlagCoding("CLD");
+        flagCoding.addFlag("ALL", 0x1, "Summary Logical or of All cloud and shadow masks");
+        flagCoding.addFlag("ALL_CLOUDS", 0x2, "Logical or of All cloud masks");
+        flagCoding.addFlag("SHADOWS", 0x4, "Shadows mask from clouds within image");
+        flagCoding.addFlag("SHADVAR", 0x8, "Shadows mask from clouds outside image");
+        flagCoding.addFlag("REFL", 0x10, "Reflectance threshold");
+        flagCoding.addFlag("REFL_VAR", 0x20, "Reflectance variation threshold");
+        flagCoding.addFlag("EXTENSION", 0x40, "Extension of the cloud mask");
+        flagCoding.addFlag("CIRRUS", 0x80, "Cirrus mask");
+        return flagCoding;
     }
 
     private File getFile(String regularExpression, File dataDir) throws IOException {
