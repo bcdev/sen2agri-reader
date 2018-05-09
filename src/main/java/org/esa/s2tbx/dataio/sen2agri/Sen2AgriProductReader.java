@@ -272,6 +272,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         Band band = new Band(name, ProductData.TYPE_INT16, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setScalingFactor(scaleFactor);
         band.setNoDataValue(bandHeader.getNoDataValue());
+        band.setNoDataValueUsed(true);
         if (name.contains("_R1_")) {
             band.setGeoCoding(highResGeoCoding);
         } else {
@@ -377,6 +378,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         Band band = new Band("ATB_R1_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getVapScaleFactor());
         band.setNoDataValue(atbHdr.getVapNoDataValue());
+        band.setNoDataValueUsed(true);
         band.setUnit("g/cm2");
         band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
@@ -385,6 +387,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         band = new Band("ATB_R1_AOT", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getAotScaleFactor());
         band.setNoDataValue(atbHdr.getAotNoDataValue());
+        band.setNoDataValueUsed(true);
         band.setGeoCoding(highResGeoCoding);
         product.addBand(band);
 
@@ -397,6 +400,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         band = new Band("ATB_R2_VAP", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getVapScaleFactor());
         band.setNoDataValue(atbHdr.getVapNoDataValue());
+        band.setNoDataValueUsed(true);
         band.setUnit("g/cm2");
         band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
@@ -405,6 +409,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         band = new Band("ATB_R2_AOT", ProductData.TYPE_UINT8, atbHdr.getRasterWidth(), atbHdr.getRasterHeight());
         band.setScalingFactor(atbHdr.getAotScaleFactor());
         band.setNoDataValue(atbHdr.getAotNoDataValue());
+        band.setNoDataValueUsed(true);
         band.setGeoCoding(lowResGeoCoding);
         product.addBand(band);
     }

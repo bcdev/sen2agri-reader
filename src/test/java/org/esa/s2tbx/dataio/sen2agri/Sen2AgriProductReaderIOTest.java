@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class Sen2AgriProductReaderIOTest {
@@ -49,6 +50,7 @@ public class Sen2AgriProductReaderIOTest {
             final float[] floatBuffer = new float[16];
             final Band atb_r1_vap = product.getBand("ATB_R1_VAP");
             assertEquals(0, atb_r1_vap.getNoDataValue(), 1e-8);
+            assertTrue(atb_r1_vap.isNoDataValueUsed());
             atb_r1_vap.readPixels(3000, 3000, 4, 4, floatBuffer);
             assertEquals(10.25, floatBuffer[0], 1e-8);
             assertEquals(10.300000190734863, floatBuffer[1], 1e-8);
@@ -57,6 +59,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band atb_r1_aot = product.getBand("ATB_R1_AOT");
             assertEquals(0, atb_r1_aot.getNoDataValue(), 1e-8);
+            assertTrue(atb_r1_aot.isNoDataValueUsed());
             atb_r1_aot.readPixels(3010, 3010, 4, 4, floatBuffer);
             assertEquals(0.12999999523162842, floatBuffer[0], 1e-8);
             assertEquals(0.12999999523162842, floatBuffer[1], 1e-8);
@@ -82,6 +85,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band fre_r1_b2 = product.getBand("FRE_R1_B2");
             assertEquals(-10000, fre_r1_b2.getNoDataValue(), 1e-8);
+            assertTrue(fre_r1_b2.isNoDataValueUsed());
             fre_r1_b2.readPixels(3080, 3080, 4, 4, floatBuffer);
             assertEquals(0.08060000091791153, floatBuffer[8], 1e-8);
             assertEquals(0.08370000123977661, floatBuffer[9], 1e-8);
@@ -90,6 +94,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band sre_r1_b8 = product.getBand("SRE_R1_B8");
             assertEquals(-10000, sre_r1_b8.getNoDataValue(), 1e-8);
+            assertTrue(sre_r1_b8.isNoDataValueUsed());
             sre_r1_b8.readPixels(3110, 3110, 4, 4, floatBuffer);
             assertEquals(0.25859999656677246, floatBuffer[4], 1e-8);
             assertEquals(0.2567000091075897, floatBuffer[5], 1e-8);
@@ -126,6 +131,7 @@ public class Sen2AgriProductReaderIOTest {
             final float[] floatBuffer = new float[16];
             final Band atb_r2_vap = product.getBand("ATB_R2_VAP");
             assertEquals(0, atb_r2_vap.getNoDataValue(), 1e-8);
+            assertTrue(atb_r2_vap.isNoDataValueUsed());
             atb_r2_vap.readPixels(3020, 3020, 4, 4, floatBuffer);
             assertEquals(10.800000190734863, floatBuffer[4], 1e-8);
             assertEquals(10.800000190734863, floatBuffer[5], 1e-8);
@@ -134,6 +140,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band atb_r2_aot = product.getBand("ATB_R2_AOT");
             assertEquals(0, atb_r2_aot.getNoDataValue(), 1e-8);
+            assertTrue(atb_r2_aot.isNoDataValueUsed());
             atb_r2_aot.readPixels(3030, 3030, 4, 4, floatBuffer);
             assertEquals(0.10000000149011612, floatBuffer[8], 1e-8);
             assertEquals(0.10000000149011612, floatBuffer[9], 1e-8);
@@ -159,6 +166,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band fre_r1_b3 = product.getBand("FRE_R1_B3");
             assertEquals(-10000, fre_r1_b3.getNoDataValue(), 1e-8);
+            assertTrue(fre_r1_b3.isNoDataValueUsed());
             fre_r1_b3.readPixels(3090, 3090, 4, 4, floatBuffer);
             assertEquals(0.010599999688565731, floatBuffer[12], 1e-8);
             assertEquals(0.008700000122189522, floatBuffer[13], 1e-8);
@@ -167,6 +175,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band sre_r2_b5 = product.getBand("SRE_R2_B5");
             assertEquals(-10000, sre_r2_b5.getNoDataValue(), 1e-8);
+            assertTrue(sre_r2_b5.isNoDataValueUsed());
             sre_r2_b5.readPixels(3120, 3120, 4, 4, floatBuffer);
             assertEquals(0.01360000018030405, floatBuffer[8], 1e-8);
             assertEquals(0.013100000098347664, floatBuffer[9], 1e-8);
@@ -227,6 +236,7 @@ public class Sen2AgriProductReaderIOTest {
             final float[] floatBuffer = new float[16];
             final Band fre_r1_b4 = product.getBand("FRE_R1_B4");
             assertEquals(-10000, fre_r1_b4.getNoDataValue(), 1e-8);
+            assertTrue(fre_r1_b4.isNoDataValueUsed());
             fre_r1_b4.readPixels(3100, 3100, 4, 4, floatBuffer);
             assertEquals(0.2328999936580658, floatBuffer[0], 1e-8);
             assertEquals(0.2084999978542328, floatBuffer[1], 1e-8);
@@ -235,6 +245,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final Band sre_r2_b6 = product.getBand("SRE_R2_B6");
             assertEquals(-10000, sre_r2_b6.getNoDataValue(), 1e-8);
+            assertTrue(sre_r2_b6.isNoDataValueUsed());
             sre_r2_b6.readPixels(3130, 3130, 4, 4, floatBuffer);
             assertEquals(-1.0, floatBuffer[8], 1e-8);
             assertEquals(-1.0, floatBuffer[9], 1e-8);
