@@ -68,7 +68,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band msk_r1 = product.getBand("MSK_R1");
-            final FlagCoding flagCoding = msk_r1.getFlagCoding();
+            FlagCoding flagCoding = msk_r1.getFlagCoding();
             assertEquals("MSK", flagCoding.getName());
             msk_r1.readPixels(3050, 3050, 4, 4, intBuffer);
             assertEquals(0, intBuffer[12]);
@@ -77,6 +77,8 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals(0, intBuffer[15]);
 
             final Band qlt_r1_pix = product.getBand("QLT_R1_OTH");
+            flagCoding = qlt_r1_pix.getFlagCoding();
+            assertEquals("OTH", flagCoding.getName());
             qlt_r1_pix.readPixels(3070, 3070, 4, 4, intBuffer);
             assertEquals(0, intBuffer[4]);
             assertEquals(0, intBuffer[5]);
@@ -149,7 +151,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band msk_r2 = product.getBand("MSK_R2");
-            final FlagCoding flagCoding = msk_r2.getFlagCoding();
+            FlagCoding flagCoding = msk_r2.getFlagCoding();
             assertEquals("MSK", flagCoding.getName());
             msk_r2.readPixels(3060, 3060, 4, 4, intBuffer);
             assertEquals(1, intBuffer[0]);
@@ -158,6 +160,8 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals(1, intBuffer[3]);
 
             final Band qlt_r2_sat = product.getBand("QLT_R2_SAT");
+            flagCoding = qlt_r2_sat.getFlagCoding();
+            assertEquals("SAT_R2", flagCoding.getName());
             qlt_r2_sat.readPixels(3080, 3080, 4, 4, intBuffer);
             assertEquals(0, intBuffer[8]);
             assertEquals(0, intBuffer[9]);
@@ -211,7 +215,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band cld_r1 = product.getBand("CLD_R1");
-            final FlagCoding flagCoding = cld_r1.getFlagCoding();
+            FlagCoding flagCoding = cld_r1.getFlagCoding();
             assertEquals("CLD", flagCoding.getName());
             cld_r1.readPixels(3040, 3040, 4, 4, intBuffer);
             assertEquals(0, intBuffer[8]);
@@ -220,6 +224,8 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals(0, intBuffer[11]);
 
             final Band qlt_r1_sat = product.getBand("QLT_R1_SAT");
+            flagCoding = qlt_r1_sat.getFlagCoding();
+            assertEquals("SAT_R1", flagCoding.getName());
             qlt_r1_sat.readPixels(3050, 3050, 4, 4, intBuffer);
             assertEquals(0, intBuffer[12]);
             assertEquals(0, intBuffer[13]);
@@ -227,6 +233,8 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals(0, intBuffer[15]);
 
             final Band qlt_r2_pix = product.getBand("QLT_R2_PIX");
+            flagCoding = qlt_r2_pix.getFlagCoding();
+            assertEquals("PIX_R2", flagCoding.getName());
             qlt_r2_pix.readPixels(3090, 3090, 4, 4, intBuffer);
             assertEquals(0, intBuffer[12]);
             assertEquals(0, intBuffer[13]);
@@ -281,7 +289,7 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band cld_r1 = product.getBand("CLD_R2");
-            final FlagCoding flagCoding = cld_r1.getFlagCoding();
+            FlagCoding flagCoding = cld_r1.getFlagCoding();
             assertEquals("CLD", flagCoding.getName());
             cld_r1.readPixels(3050, 3050, 4, 4, intBuffer);
             assertEquals(19, intBuffer[12]);
@@ -290,6 +298,8 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals(19, intBuffer[15]);
 
             final Band qlt_r1_pix = product.getBand("QLT_R1_PIX");
+            flagCoding = qlt_r1_pix.getFlagCoding();
+            assertEquals("PIX_R1", flagCoding.getName());
             qlt_r1_pix.readPixels(3060, 3060, 4, 4, intBuffer);
             assertEquals(0, intBuffer[0]);
             assertEquals(0, intBuffer[1]);
@@ -297,6 +307,8 @@ public class Sen2AgriProductReaderIOTest {
             assertEquals(0, intBuffer[3]);
 
             final Band qlt_r2_oth = product.getBand("QLT_R2_OTH");
+            flagCoding = qlt_r2_oth.getFlagCoding();
+            assertEquals("OTH", flagCoding.getName());
             qlt_r2_oth.readPixels(3100, 3100, 4, 4, intBuffer);
             assertEquals(2, intBuffer[0]);
             assertEquals(2, intBuffer[1]);

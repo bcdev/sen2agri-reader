@@ -291,31 +291,38 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         addStreamContainer("QLT_R1_SAT", 0, tiffImageReader);
         Band band = new Band("QLT_R1_SAT", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(highResGeoCoding);
+        band.setSampleCoding(create_SAT_R1_FlagCoding());
         product.addBand(band);
         addStreamContainer("QLT_R1_PIX", 1, tiffImageReader);
         band = new Band("QLT_R1_PIX", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(highResGeoCoding);
+        band.setSampleCoding(create_PIX_R1_FlagCoding());
         product.addBand(band);
         addStreamContainer("QLT_R1_OTH", 2, tiffImageReader);
         band = new Band("QLT_R1_OTH", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(highResGeoCoding);
+        band.setSampleCoding(create_OTH_FlagCoding());
         product.addBand(band);
 
         final File qlt_r2_tif = getFile(".*QLT_R2.DBL.TIF", dataDir);
+        bandHeader = readBandHeader(getFile(".*QLT_R2.HDR", dataDir));
         stream = registerInputStream(qlt_r2_tif);
         tiffImageReader = getTiffImageReader(stream);
 
         addStreamContainer("QLT_R2_SAT", 0, tiffImageReader);
         band = new Band("QLT_R2_SAT", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(lowResGeoCoding);
+        band.setSampleCoding(create_SAT_R2_FlagCoding());
         product.addBand(band);
         addStreamContainer("QLT_R2_PIX", 1, tiffImageReader);
         band = new Band("QLT_R2_PIX", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(lowResGeoCoding);
+        band.setSampleCoding(create_PIX_R2_FlagCoding());
         product.addBand(band);
         addStreamContainer("QLT_R2_OTH", 2, tiffImageReader);
         band = new Band("QLT_R2_OTH", ProductData.TYPE_UINT8, bandHeader.getRasterWidth(), bandHeader.getRasterHeight());
         band.setGeoCoding(lowResGeoCoding);
+        band.setSampleCoding(create_OTH_FlagCoding());
         product.addBand(band);
     }
 
@@ -458,6 +465,62 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         flagCoding.addFlag("STL", 0x8, "sun too low flag");
         flagCoding.addFlag("TGS", 0x10, "tangent sun flag");
         flagCoding.addFlag("SNW", 0x20, "Snow");
+        return flagCoding;
+    }
+
+    // package access for testing only tb 2018-05-09
+    static FlagCoding create_SAT_R1_FlagCoding() {
+        final FlagCoding flagCoding = new FlagCoding("SAT_R1");
+        flagCoding.setDescription("Saturation mask copied from L1");
+        flagCoding.addFlag("B2", 0x1, "B2 saturated");
+        flagCoding.addFlag("B3", 0x2, "B3 saturated");
+        flagCoding.addFlag("B4", 0x4, "B4 saturated");
+        flagCoding.addFlag("B8", 0x8, "B8 saturated");
+        return flagCoding;
+    }
+
+    // package access for testing only tb 2018-05-09
+    static FlagCoding create_SAT_R2_FlagCoding() {
+        final FlagCoding flagCoding = new FlagCoding("SAT_R2");
+        flagCoding.setDescription("Saturation mask copied from L1");
+        flagCoding.addFlag("B5", 0x1, "B5 saturated");
+        flagCoding.addFlag("B6", 0x2, "B6 saturated");
+        flagCoding.addFlag("B7", 0x4, "B7 saturated");
+        flagCoding.addFlag("B8A", 0x8, "B8A saturated");
+        flagCoding.addFlag("B11", 0x10, "B11 saturated");
+        flagCoding.addFlag("B12", 0x20, "B12 saturated");
+        return flagCoding;
+    }
+
+    // package access for testing only tb 2018-05-09
+    static FlagCoding create_PIX_R1_FlagCoding() {
+        final FlagCoding flagCoding = new FlagCoding("PIX_R1");
+        flagCoding.setDescription("aberrant pixels channel copied from level 1");
+        flagCoding.addFlag("B2", 0x1, "B2 aberrant pixel");
+        flagCoding.addFlag("B3", 0x2, "B3 aberrant pixel");
+        flagCoding.addFlag("B4", 0x4, "B4 aberrant pixel");
+        flagCoding.addFlag("B8", 0x8, "B8 aberrant pixel");
+        return flagCoding;
+    }
+
+    // package access for testing only tb 2018-05-09
+    static FlagCoding create_PIX_R2_FlagCoding() {
+        final FlagCoding flagCoding = new FlagCoding("PIX_R2");
+        flagCoding.setDescription("aberrant pixels channel copied from level 1");
+        flagCoding.addFlag("B5", 0x1, "B5 aberrant pixel");
+        flagCoding.addFlag("B6", 0x2, "B6 aberrant pixel");
+        flagCoding.addFlag("B7", 0x4, "B7 aberrant pixel");
+        flagCoding.addFlag("B8A", 0x8, "B8A aberrant pixel");
+        flagCoding.addFlag("B11", 0x10, "B11 aberrant pixel");
+        flagCoding.addFlag("B12", 0x20, "B12 aberrant pixel");
+        return flagCoding;
+    }
+
+    // package access for testing only tb 2018-05-09
+    static FlagCoding create_OTH_FlagCoding() {
+        final FlagCoding flagCoding = new FlagCoding("OTH");
+        flagCoding.addFlag("EDG", 0x1, "Edge mask");
+        flagCoding.addFlag("TAO", 0x2, "AOT pixel mask (0 if computed, 1 if interpolated)");
         return flagCoding;
     }
 
