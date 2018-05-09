@@ -48,7 +48,7 @@ public class Sen2AgriProductReaderTest {
 
         assertEquals("MSK", flagCoding.getName());
         assertEquals("Geophysical masks", flagCoding.getDescription());
-        assertEquals(5, flagCoding.getFlagNames().length);
+        assertEquals(6, flagCoding.getFlagNames().length);
 
         MetadataAttribute flag = flagCoding.getFlag("HID");
         assertEquals(0x2, ((int[])flag.getDataElems())[0]);
@@ -59,5 +59,10 @@ public class Sen2AgriProductReaderTest {
         assertEquals(0x8, ((int[])flag.getDataElems())[0]);
         assertEquals("STL", flag.getName());
         assertEquals("sun too low flag", flag.getDescription());
+
+        flag = flagCoding.getFlag("SNW");
+        assertEquals(0x20, ((int[])flag.getDataElems())[0]);
+        assertEquals("SNW", flag.getName());
+        assertEquals("Snow", flag.getDescription());
     }
 }

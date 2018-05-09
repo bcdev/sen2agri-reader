@@ -452,6 +452,7 @@ public class Sen2AgriProductReader extends AbstractProductReader {
         flagCoding.addFlag("SHD", 0x4, "shadowed by topography mask");
         flagCoding.addFlag("STL", 0x8, "sun too low flag");
         flagCoding.addFlag("TGS", 0x10, "tangent sun flag");
+        flagCoding.addFlag("SNW", 0x20, "Snow");
         return flagCoding;
     }
 
