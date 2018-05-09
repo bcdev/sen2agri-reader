@@ -27,6 +27,9 @@ public class Sen2AgriProductReaderTest {
         assertNotNull(flagCoding);
 
         assertEquals("CLD", flagCoding.getName());
+        assertEquals("Cloud and cloud shadow mask", flagCoding.getDescription());
+        assertEquals(8, flagCoding.getFlagNames().length);
+
         MetadataAttribute flag = flagCoding.getFlag("ALL");
         assertEquals(0x1, ((int[])flag.getDataElems())[0]);
         assertEquals("ALL", flag.getName());
@@ -36,5 +39,25 @@ public class Sen2AgriProductReaderTest {
         assertEquals(0x8, ((int[])flag.getDataElems())[0]);
         assertEquals("SHADVAR", flag.getName());
         assertEquals("Shadows mask from clouds outside image", flag.getDescription());
+    }
+
+    @Test
+    public void testCreateGeophysicalFlagCoding() {
+        final FlagCoding flagCoding = Sen2AgriProductReader.createGeophysicalFlagCoding();
+        assertNotNull(flagCoding);
+
+        assertEquals("MSK", flagCoding.getName());
+        assertEquals("Geophysical masks", flagCoding.getDescription());
+        assertEquals(5, flagCoding.getFlagNames().length);
+
+        MetadataAttribute flag = flagCoding.getFlag("HID");
+        assertEquals(0x2, ((int[])flag.getDataElems())[0]);
+        assertEquals("HID", flag.getName());
+        assertEquals("Hidden surfaces", flag.getDescription());
+
+        flag = flagCoding.getFlag("STL");
+        assertEquals(0x8, ((int[])flag.getDataElems())[0]);
+        assertEquals("STL", flag.getName());
+        assertEquals("sun too low flag", flag.getDescription());
     }
 }

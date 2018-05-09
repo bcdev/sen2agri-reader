@@ -65,6 +65,8 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band msk_r1 = product.getBand("MSK_R1");
+            final FlagCoding flagCoding = msk_r1.getFlagCoding();
+            assertEquals("MSK", flagCoding.getName());
             msk_r1.readPixels(3050, 3050, 4, 4, intBuffer);
             assertEquals(0, intBuffer[12]);
             assertEquals(0, intBuffer[13]);
@@ -140,6 +142,8 @@ public class Sen2AgriProductReaderIOTest {
 
             final int[] intBuffer = new int[16];
             final Band msk_r2 = product.getBand("MSK_R2");
+            final FlagCoding flagCoding = msk_r2.getFlagCoding();
+            assertEquals("MSK", flagCoding.getName());
             msk_r2.readPixels(3060, 3060, 4, 4, intBuffer);
             assertEquals(1, intBuffer[0]);
             assertEquals(1, intBuffer[1]);
